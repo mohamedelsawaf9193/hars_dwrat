@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+<title>نظام نتائج الدورات</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+body{
+font-family:'Cairo',sans-serif;
+background:linear-gradient(135deg,#020617,#0f172a,#020617);
+min-height:100vh;
+color:white;
+display:flex;
+justify-content:center;
+padding:40px 20px;
+}
+
+.wrapper{
+width:100%;
+max-width:1000px;
+}
+
+/* header */
+
+.header{
+margin-bottom:30px;
+text-align:center;
+}
+
+.header h1{
+font-size:32px;
+font-weight:700;
+}
+
+.header p{
+opacity:.7;
+margin-top:6px;
+}
+
+/* card */
+
+.card{
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:16px;
+padding:25px;
+backdrop-filter:blur(12px);
+box-shadow:0 10px 40px rgba(0,0,0,.4);
+}
+
+/* grid */
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-bottom:15px;
+}
+
+label{
+font-size:13px;
+opacity:.7;
+display:block;
+margin-bottom:5px;
+}
+
+/* inputs */
+
+input,select,textarea{
+width:100%;
+background:#020617;
+border:1px solid #1e293b;
+border-radius:8px;
+padding:10px;
+color:white;
+font-family:'Cairo';
+transition:.2s;
+}
+
+input:focus,select:focus,textarea:focus{
+outline:none;
+border-color:#2563eb;
+box-shadow:0 0 0 1px #2563eb;
+}
+
+textarea{
+height:220px;
+resize:none;
+}
+
+/* buttons */
+
+.buttons{
+display:flex;
+gap:10px;
+margin-top:15px;
+flex-wrap:wrap;
+}
+
+button{
+flex:1;
+border:none;
+padding:12px;
+border-radius:8px;
+cursor:pointer;
+font-family:'Cairo';
+font-weight:600;
+font-size:14px;
+transition:.2s;
+}
+
+.generate{
+background:#2563eb;
+}
+
+.copy{
+background:#16a34a;
+}
+
+.clear{
+background:#ef4444;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 6px 18px rgba(0,0,0,.4);
+}
+
+/* stats */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(5,1fr);
+gap:10px;
+margin-top:20px;
+}
+
+.stat{
+background:#020617;
+border:1px solid #1e293b;
+border-radius:10px;
+padding:12px;
+text-align:center;
+font-size:13px;
+}
+
+.stat b{
+font-size:18px;
+display:block;
+margin-top:3px;
+}
+
+/* result */
+
+.result{
+margin-top:20px;
+background:#020617;
+border:1px solid #1e293b;
+padding:18px;
+border-radius:10px;
+white-space:pre-wrap;
+line-height:1.8;
+font-size:14px;
+max-height:350px;
+overflow:auto;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="header">
+<h1>📊 نظام نتائج الدورات</h1>
+</div>
+
+<div class="card">
+
+
+<textarea id="data" placeholder="الصق البيانات هنا"></textarea>
+
+<div class="buttons">
+
+<button class="generate" onclick="generate()">إنشاء التقرير</button>
+
+<button class="copy" onclick="copyResult()">نسخ النتيجة</button>
+
+<button class="clear" onclick="clearAll()">مسح</button>
+
+</div>
+
+<div class="stats">
+
+<div class="stat">10/10<b id="s10">0</b></div>
+<div class="stat">10/9<b id="s9">0</b></div>
+<div class="stat">10/8<b id="s8">0</b></div>
+<div class="stat">10/7<b id="s7">0</b></div>
+<div class="stat">10/6<b id="s6">0</b></div>
+
+</div>
+
+<div id="result" class="result"></div>
+
+</div>
+
+</div>
+
+<script>
+
+function generate(){
+
+let rows=document.getElementById("data").value.trim().split("\n")
+
+let g10=[],g9=[],g8=[],g7=[],g6=[]
+
+rows.forEach(row=>{
+
+let cols=row.split("\t")
+
+if(cols.length<2) return
+
+let scoreText=cols[1]
+
+let idMatch=row.match(/\d{17,}/)
+
+if(!idMatch) return
+
+let scoreMatch=scoreText.match(/(\d+)\s*\/\s*(\d+)/)
+
+if(!scoreMatch) return
+
+let score=parseInt(scoreMatch[1])
+let max=parseInt(scoreMatch[2])
+
+if(max===20) score=Math.round(score/2)
+
+let mention="<@"+idMatch[0]+">"
+
+if(score>=10) g10.push(mention)
+else if(score==9) g9.push(mention)
+else if(score==8) g8.push(mention)
+else if(score==7) g7.push(mention)
+else if(score==6) g6.push(mention)
+
+})
+
+let report=""
+if(g10.length) report+="***10 / 10***\n"+g10.join("\n")+"\n\n"
+if(g9.length) report+="***10 / 09***\n"+g9.join("\n")+"\n\n"
+if(g8.length) report+="***10 / 08***\n"+g8.join("\n")+"\n\n"
+if(g7.length) report+="***10 / 07***\n"+g7.join("\n")+"\n\n"
+if(g6.length) report+="***10 / 06***\n"+g6.join("\n")+"\n\n"
+
+
+
+document.getElementById("result").textContent=report
+
+document.getElementById("s10").textContent=g10.length
+document.getElementById("s9").textContent=g9.length
+document.getElementById("s8").textContent=g8.length
+document.getElementById("s7").textContent=g7.length
+document.getElementById("s6").textContent=g6.length
+
+}
+
+function copyResult(){
+
+navigator.clipboard.writeText(document.getElementById("result").textContent)
+
+alert("تم نسخ التقرير")
+
+}
+
+function clearAll(){
+
+document.getElementById("data").value=""
+document.getElementById("result").textContent=""
+
+document.querySelectorAll(".stat b").forEach(e=>e.textContent="0")
+
+}
+
+</script>
+
+</body>
+</html>
